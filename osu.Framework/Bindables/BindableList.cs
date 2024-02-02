@@ -39,6 +39,7 @@ namespace osu.Framework.Bindables
 
         private readonly List<T> singleItemCache1 = new List<T> { default };
         private readonly List<T> singleItemCache2 = new List<T> { default };
+        private readonly HashSet<BindableList<T>> appliedInstancesCache = new HashSet<BindableList<T>>();
 
         /// <summary>
         /// Creates a new <see cref="BindableList{T}"/>, optionally adding the items of the given collection.
@@ -91,7 +92,10 @@ namespace osu.Framework.Bindables
         /// <param name="item">The item to be added.</param>
         /// <exception cref="InvalidOperationException">Thrown when this <see cref="BindableList{T}"/> is <see cref="Disabled"/>.</exception>
         public void Add(T item)
-            => add(item, new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            add(item, appliedInstancesCache);
+        }
 
         private void add(T item, HashSet<BindableList<T>> appliedInstances)
         {
