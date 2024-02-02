@@ -336,7 +336,10 @@ namespace osu.Framework.Bindables
         /// <param name="count">The count of items to be removed.</param>
         /// <param name="newItems">The items to replace the removed items with.</param>
         public void ReplaceRange(int index, int count, IEnumerable<T> newItems)
-            => replaceRange(index, count, newItems as List<T> ?? newItems.ToList(), new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            replaceRange(index, count, newItems as List<T> ?? newItems.ToList(), appliedInstancesCache);
+        }
 
         private void replaceRange(int index, int count, List<T> newItems, HashSet<BindableList<T>> appliedInstances)
         {
