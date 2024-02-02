@@ -61,7 +61,11 @@ namespace osu.Framework.Bindables
         public T this[int index]
         {
             get => collection[index];
-            set => setIndex(index, value, new HashSet<BindableList<T>>());
+            set
+            {
+                appliedInstancesCache.Clear();
+                setIndex(index, value, appliedInstancesCache);
+            }
         }
 
         private void setIndex(int index, T item, HashSet<BindableList<T>> appliedInstances)
@@ -129,7 +133,10 @@ namespace osu.Framework.Bindables
         /// <param name="item">The item to insert.</param>
         /// <exception cref="InvalidOperationException">Thrown when this <see cref="BindableList{T}"/> is <see cref="Disabled"/>.</exception>
         public void Insert(int index, T item)
-            => insert(index, item, new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            insert(index, item, appliedInstancesCache);
+        }
 
         private void insert(int index, T item, HashSet<BindableList<T>> appliedInstances)
         {
@@ -155,7 +162,10 @@ namespace osu.Framework.Bindables
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when this <see cref="BindableList{T}"/> is <see cref="Disabled"/>.</exception>
         public void Clear()
-            => clear(new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            clear(appliedInstancesCache);
+        }
 
         private void clear(HashSet<BindableList<T>> appliedInstances)
         {
@@ -195,7 +205,10 @@ namespace osu.Framework.Bindables
         /// <returns><code>true</code> if the removal was successful.</returns>
         /// <exception cref="InvalidOperationException">Thrown if this <see cref="BindableList{T}"/> is <see cref="Disabled"/>.</exception>
         public bool Remove(T item)
-            => remove(item, new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            return remove(item, appliedInstancesCache);
+        }
 
         private bool remove(T item, HashSet<BindableList<T>> appliedInstances)
         {
@@ -239,7 +252,8 @@ namespace osu.Framework.Bindables
         /// <param name="count">The count of items to be removed.</param>
         public void RemoveRange(int index, int count)
         {
-            removeRange(index, count, new HashSet<BindableList<T>>());
+            appliedInstancesCache.Clear();
+            removeRange(index, count, appliedInstancesCache);
         }
 
         private void removeRange(int index, int count, HashSet<BindableList<T>> appliedInstances)
@@ -274,7 +288,10 @@ namespace osu.Framework.Bindables
         /// <param name="index">The index of the item to remove.</param>
         /// <exception cref="InvalidOperationException">Thrown if this <see cref="BindableList{T}"/> is <see cref="Disabled"/>.</exception>
         public void RemoveAt(int index)
-            => removeAt(index, new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            removeAt(index, appliedInstancesCache);
+        }
 
         private void removeAt(int index, HashSet<BindableList<T>> appliedInstances)
         {
@@ -302,7 +319,10 @@ namespace osu.Framework.Bindables
         /// </summary>
         /// <param name="match">The predicate.</param>
         public int RemoveAll(Predicate<T> match)
-            => removeAll(match, new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            return removeAll(match, appliedInstancesCache);
+        }
 
         private int removeAll(Predicate<T> match, HashSet<BindableList<T>> appliedInstances)
         {
@@ -562,7 +582,10 @@ namespace osu.Framework.Bindables
         /// <param name="items">The collection whose items should be added to this collection.</param>
         /// <exception cref="InvalidOperationException">Thrown if this collection is <see cref="Disabled"/></exception>
         public void AddRange(IEnumerable<T> items)
-            => addRange(items as List<T> ?? items.ToList(), new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            addRange(items as List<T> ?? items.ToList(), appliedInstancesCache);
+        }
 
         private void addRange(List<T> items, HashSet<BindableList<T>> appliedInstances)
         {
@@ -587,7 +610,10 @@ namespace osu.Framework.Bindables
         /// <param name="oldIndex">The index of the item to move.</param>
         /// <param name="newIndex">The index specifying the new location of the item.</param>
         public void Move(int oldIndex, int newIndex)
-            => move(oldIndex, newIndex, new HashSet<BindableList<T>>());
+        {
+            appliedInstancesCache.Clear();
+            move(oldIndex, newIndex, appliedInstancesCache);
+        }
 
         private void move(int oldIndex, int newIndex, HashSet<BindableList<T>> appliedInstances)
         {
