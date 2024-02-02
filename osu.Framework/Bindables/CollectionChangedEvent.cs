@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using osu.Framework.Extensions.ListExtensions;
 using osu.Framework.Lists;
 
@@ -22,30 +23,23 @@ namespace osu.Framework.Bindables
         /// <summary>
         /// Construct a CollectionChangedEvent that describes a multi-item change (or a reset).
         /// </summary>
-        /// <param name="action">The action that caused the event.</param>
+        /// <param name="action">The action that caused the event - can be <see cref="NotifyCollectionChangedAction.Add"/> or <see cref="NotifyCollectionChangedAction.Remove"/></param>
         /// <param name="changedItems">The items affected by the change.</param>
         /// <param name="startingIndex">The index where the change occurred.</param>
         public CollectionChangedEvent(NotifyCollectionChangedAction action, List<T> changedItems, int startingIndex)
         {
+            Debug.Assert(startingIndex >= -1);
+
             switch (action)
             {
                 case NotifyCollectionChangedAction.Add:
+                    NewItems = changedItems.AsSlimReadOnly();
+                    NewStartingIndex = startingIndex;
+                    break;
+
                 case NotifyCollectionChangedAction.Remove:
-
-                    if (startingIndex < -1)
-                        throw new ArgumentException();
-
-                    if (action == NotifyCollectionChangedAction.Add)
-                    {
-                        NewItems = changedItems.AsSlimReadOnly();
-                        NewStartingIndex = startingIndex;
-                    }
-                    else
-                    {
-                        OldItems = changedItems.AsSlimReadOnly();
-                        OldStartingIndex = startingIndex;
-                    }
-
+                    OldItems = changedItems.AsSlimReadOnly();
+                    OldStartingIndex = startingIndex;
                     break;
 
                 default:
@@ -58,16 +52,12 @@ namespace osu.Framework.Bindables
         /// <summary>
         /// Construct a CollectionChangedEvent that describes a multi-item Replace event.
         /// </summary>
-        /// <param name="action">Can only be a Replace action.</param>
         /// <param name="newItems">The new items replacing the original items.</param>
         /// <param name="oldItems">The original items that are replaced.</param>
         /// <param name="startingIndex">The starting index of the items being replaced.</param>
-        public CollectionChangedEvent(NotifyCollectionChangedAction action, List<T> newItems, List<T> oldItems, int startingIndex)
+        public CollectionChangedEvent(List<T> newItems, List<T> oldItems, int startingIndex)
         {
-            if (action != NotifyCollectionChangedAction.Replace)
-                throw new ArgumentException();
-
-            Action = action;
+            Action = NotifyCollectionChangedAction.Replace;
             NewItems = newItems.AsSlimReadOnly();
             OldItems = oldItems.AsSlimReadOnly();
             NewStartingIndex = OldStartingIndex = startingIndex;
@@ -76,24 +66,18 @@ namespace osu.Framework.Bindables
         /// <summary>
         /// Construct a CollectionChangedEvent that describes a one-item Move event.
         /// </summary>
-        /// <param name="action">Can only be a Move action.</param>
-        /// <param name="changedItem">The item affected by the change.</param>
+        /// <param name="movedItem">The item affected by the change.</param>
         /// <param name="index">The new index for the changed item.</param>
         /// <param name="oldIndex">The old index for the changed item.</param>
-        public CollectionChangedEvent(NotifyCollectionChangedAction action, T changedItem, int index, int oldIndex)
+        public CollectionChangedEvent(T movedItem, int index, int oldIndex)
         {
-            if (action != NotifyCollectionChangedAction.Move)
-            {
-                throw new ArgumentException();
-            }
-
             if (index < 0)
             {
                 throw new ArgumentException();
             }
 
-            Action = action;
-            NewItems = OldItems = new List<T> { changedItem }.AsSlimReadOnly();
+            Action = NotifyCollectionChangedAction.Move;
+            NewItems = OldItems = new List<T> { movedItem }.AsSlimReadOnly();
             NewStartingIndex = index;
             OldStartingIndex = oldIndex;
         }

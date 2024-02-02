@@ -83,7 +83,7 @@ namespace osu.Framework.Bindables
             singleItemCache1[0] = item;
             singleItemCache2[0] = lastItem;
 
-            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Replace, singleItemCache1, singleItemCache2, index));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(singleItemCache1, singleItemCache2, index));
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace osu.Framework.Bindables
                 }
             }
 
-            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Replace, newItems, removedItems, index));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(newItems, removedItems, index));
         }
 
         /// <summary>
@@ -603,7 +603,7 @@ namespace osu.Framework.Bindables
                     b.move(oldIndex, newIndex, appliedInstances);
             }
 
-            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(item, newIndex, oldIndex));
         }
 
         void IBindable.BindTo(IBindable them)
