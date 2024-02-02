@@ -82,7 +82,7 @@ namespace osu.Framework.Graphics.Containers
         {
         }
 
-        private void collectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void collectionChanged(IBindableList<TModel> sender, CollectionChangedEvent<TModel> e)
         {
             switch (e.Action)
             {

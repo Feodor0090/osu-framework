@@ -97,7 +97,7 @@ namespace osu.Framework.Tests.Bindables
         {
             var list = new BindableList<int> { 1 };
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<int> triggeredArgs = null;
             list.BindCollectionChanged((_, args) => triggeredArgs = args);
 
             Assert.That(triggeredArgs, Is.Null);
@@ -108,7 +108,7 @@ namespace osu.Framework.Tests.Bindables
         {
             var list = new BindableList<int>();
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<int> triggeredArgs = null;
             list.BindCollectionChanged((_, args) => triggeredArgs = args, true);
 
             Assert.That(triggeredArgs.Action, Is.EqualTo(NotifyCollectionChangedAction.Add));
@@ -121,7 +121,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<int>(new[] { 1, 3, 5, 6 });
             var otherList = new BindableList<int>(new[] { 1, 3, 5, 6 });
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<int> triggeredArgs = null;
             list.BindCollectionChanged((_, args) => triggeredArgs = args);
             list.BindTo(otherList);
 
@@ -134,7 +134,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<int>(new[] { 99, 100, 101, 102 });
             var enumerable = Enumerable.Range(99, 4);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<int> triggeredArgs = null;
             list.BindCollectionChanged((_, args) => triggeredArgs = args);
             list.Parse(enumerable, CultureInfo.InvariantCulture);
 
@@ -147,7 +147,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>(new[] { "first", "list", "here" });
             var otherList = new BindableList<string>(new[] { "other", "list" });
 
-            var triggeredArgs = new List<NotifyCollectionChangedEventArgs>();
+            var triggeredArgs = new List<CollectionChangedEvent<string>>();
             list.BindCollectionChanged((_, args) => triggeredArgs.Add(args));
             list.BindTo(otherList);
 
@@ -211,7 +211,7 @@ namespace osu.Framework.Tests.Bindables
         {
             bindableStringList.Add("0");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList[0] = "1";
@@ -231,7 +231,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList[0] = "1";
@@ -262,7 +262,7 @@ namespace osu.Framework.Tests.Bindables
         [TestCase(null)]
         public void TestAddWithStringNotifiesSubscriber(string str)
         {
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Add(str);
@@ -277,7 +277,7 @@ namespace osu.Framework.Tests.Bindables
         [TestCase(null)]
         public void TestAddWithStringNotifiesSubscriberOnce(string str)
         {
-            var triggeredArgs = new List<NotifyCollectionChangedEventArgs>();
+            var triggeredArgs = new List<CollectionChangedEvent<string>>();
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs.Add(args);
 
             bindableStringList.Add(str);
@@ -290,9 +290,9 @@ namespace osu.Framework.Tests.Bindables
         [TestCase(null)]
         public void TestAddWithStringNotifiesMultipleSubscribers(string str)
         {
-            NotifyCollectionChangedEventArgs triggeredArgsA = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB = null;
-            NotifyCollectionChangedEventArgs triggeredArgsC = null;
+            CollectionChangedEvent<string> triggeredArgsA = null;
+            CollectionChangedEvent<string> triggeredArgsB = null;
+            CollectionChangedEvent<string> triggeredArgsC = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsA = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsB = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsC = args;
@@ -309,9 +309,9 @@ namespace osu.Framework.Tests.Bindables
         [TestCase(null)]
         public void TestAddWithStringNotifiesMultipleSubscribersOnlyAfterTheAdd(string str)
         {
-            NotifyCollectionChangedEventArgs triggeredArgsA = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB = null;
-            NotifyCollectionChangedEventArgs triggeredArgsC = null;
+            CollectionChangedEvent<string> triggeredArgsA = null;
+            CollectionChangedEvent<string> triggeredArgsB = null;
+            CollectionChangedEvent<string> triggeredArgsC = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsA = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsB = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsC = args;
@@ -426,7 +426,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             bindableStringList.BindTo(list);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.AddRange(items);
@@ -504,7 +504,7 @@ namespace osu.Framework.Tests.Bindables
         {
             bindableStringList.AddRange(new[] { "0", "1", "2" });
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Move(0, 1);
@@ -521,9 +521,9 @@ namespace osu.Framework.Tests.Bindables
         {
             bindableStringList.AddRange(new[] { "0", "1", "2" });
 
-            NotifyCollectionChangedEventArgs triggeredArgsA = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB = null;
-            NotifyCollectionChangedEventArgs triggeredArgsC = null;
+            CollectionChangedEvent<string> triggeredArgsA = null;
+            CollectionChangedEvent<string> triggeredArgsB = null;
+            CollectionChangedEvent<string> triggeredArgsC = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsA = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsB = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsC = args;
@@ -575,7 +575,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Move(0, 1);
@@ -594,16 +594,16 @@ namespace osu.Framework.Tests.Bindables
             var listA = new BindableList<string>();
             listA.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgsA1 = null;
-            NotifyCollectionChangedEventArgs triggeredArgsA2 = null;
+            CollectionChangedEvent<string> triggeredArgsA1 = null;
+            CollectionChangedEvent<string> triggeredArgsA2 = null;
             listA.CollectionChanged += (_, args) => triggeredArgsA1 = args;
             listA.CollectionChanged += (_, args) => triggeredArgsA2 = args;
 
             var listB = new BindableList<string>();
             listB.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgsB1 = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB2 = null;
+            CollectionChangedEvent<string> triggeredArgsB1 = null;
+            CollectionChangedEvent<string> triggeredArgsB2 = null;
             listB.CollectionChanged += (_, args) => triggeredArgsB1 = args;
             listB.CollectionChanged += (_, args) => triggeredArgsB2 = args;
 
@@ -663,7 +663,7 @@ namespace osu.Framework.Tests.Bindables
             bindableStringList.Add("0");
             bindableStringList.Add("2");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Insert(1, "1");
@@ -682,7 +682,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Insert(1, "1");
@@ -780,7 +780,7 @@ namespace osu.Framework.Tests.Bindables
             const string item = "item";
             bindableStringList.Add(item);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Remove(item);
@@ -797,12 +797,12 @@ namespace osu.Framework.Tests.Bindables
 
             var bindableObjectList = new BindableList<TestAlwaysEqualModel> { item };
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<TestAlwaysEqualModel> triggeredArgs = null;
             bindableObjectList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableObjectList.Remove(new TestAlwaysEqualModel());
 
-            Assert.That(triggeredArgs?.OldItems?[0] == item, Is.True);
+            Assert.That(triggeredArgs?.OldItems[0] == item, Is.True);
         }
 
         [Test]
@@ -811,7 +811,7 @@ namespace osu.Framework.Tests.Bindables
             const string item = "item";
             bindableStringList.Add(item);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
 
             bindableStringList.Remove(item);
 
@@ -828,9 +828,9 @@ namespace osu.Framework.Tests.Bindables
             const string item = "item";
             bindableStringList.Add(item);
 
-            NotifyCollectionChangedEventArgs triggeredArgsA = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB = null;
-            NotifyCollectionChangedEventArgs triggeredArgsC = null;
+            CollectionChangedEvent<string> triggeredArgsA = null;
+            CollectionChangedEvent<string> triggeredArgsB = null;
+            CollectionChangedEvent<string> triggeredArgsC = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsA = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsB = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsC = args;
@@ -885,7 +885,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Remove(item);
@@ -903,16 +903,16 @@ namespace osu.Framework.Tests.Bindables
             var listA = new BindableList<string>();
             listA.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgsA1 = null;
-            NotifyCollectionChangedEventArgs triggeredArgsA2 = null;
+            CollectionChangedEvent<string> triggeredArgsA1 = null;
+            CollectionChangedEvent<string> triggeredArgsA2 = null;
             listA.CollectionChanged += (_, args) => triggeredArgsA1 = args;
             listA.CollectionChanged += (_, args) => triggeredArgsA2 = args;
 
             var listB = new BindableList<string>();
             listB.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgsB1 = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB2 = null;
+            CollectionChangedEvent<string> triggeredArgsB1 = null;
+            CollectionChangedEvent<string> triggeredArgsB2 = null;
             listB.CollectionChanged += (_, args) => triggeredArgsB1 = args;
             listB.CollectionChanged += (_, args) => triggeredArgsB2 = args;
 
@@ -930,7 +930,7 @@ namespace osu.Framework.Tests.Bindables
             const string item = "item";
             bindableStringList.Add(item);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             Assert.That(triggeredArgs, Is.Null);
@@ -971,7 +971,7 @@ namespace osu.Framework.Tests.Bindables
             bindableStringList.Add("0");
             bindableStringList.Add("1");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveRange(1, 1);
@@ -993,7 +993,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveRange(0, 1);
@@ -1011,7 +1011,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveRange(0, 0);
@@ -1050,7 +1050,7 @@ namespace osu.Framework.Tests.Bindables
         {
             bindableStringList.Add("abc");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveAt(0);
@@ -1068,7 +1068,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveAt(0);
@@ -1122,7 +1122,7 @@ namespace osu.Framework.Tests.Bindables
             bindableStringList.Add("0");
             bindableStringList.Add("0");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveAll(m => m == "0");
@@ -1137,7 +1137,7 @@ namespace osu.Framework.Tests.Bindables
             bindableStringList.Add("0");
             bindableStringList.Add("0");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveAll(m => m == "1");
@@ -1154,7 +1154,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.RemoveAll(m => m == "0");
@@ -1178,7 +1178,7 @@ namespace osu.Framework.Tests.Bindables
             var list = new BindableList<string>();
             list.BindTo(bindableStringList);
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             list.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.ReplaceRange(0, 1, items);
@@ -1243,7 +1243,7 @@ namespace osu.Framework.Tests.Bindables
             for (int i = 0; i < 5; i++)
                 bindableStringList.Add("testA");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Clear();
@@ -1259,7 +1259,7 @@ namespace osu.Framework.Tests.Bindables
             for (int i = 0; i < 5; i++)
                 bindableStringList.Add("testA");
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs = args;
 
             Assert.That(triggeredArgs, Is.Null);
@@ -1273,9 +1273,9 @@ namespace osu.Framework.Tests.Bindables
             for (int i = 0; i < 5; i++)
                 bindableStringList.Add("testA");
 
-            NotifyCollectionChangedEventArgs triggeredArgsA = null;
-            NotifyCollectionChangedEventArgs triggeredArgsB = null;
-            NotifyCollectionChangedEventArgs triggeredArgsC = null;
+            CollectionChangedEvent<string> triggeredArgsA = null;
+            CollectionChangedEvent<string> triggeredArgsB = null;
+            CollectionChangedEvent<string> triggeredArgsC = null;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsA = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsB = args;
             bindableStringList.CollectionChanged += (_, args) => triggeredArgsC = args;
@@ -1543,7 +1543,7 @@ namespace osu.Framework.Tests.Bindables
             string[] strings = { "testA", "testB", "testC" };
             bindableStringList.AddRange(strings);
 
-            var triggeredArgs = new List<NotifyCollectionChangedEventArgs>();
+            var triggeredArgs = new List<CollectionChangedEvent<string>>();
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs.Add(args);
 
             bindableStringList.Parse(null, CultureInfo.InvariantCulture);
@@ -1560,7 +1560,7 @@ namespace osu.Framework.Tests.Bindables
             bindableStringList.Add("test123");
             IEnumerable<string> strings = new[] { "testA", "testB" };
 
-            var triggeredArgs = new List<NotifyCollectionChangedEventArgs>();
+            var triggeredArgs = new List<CollectionChangedEvent<string>>();
             bindableStringList.CollectionChanged += (_, args) => triggeredArgs.Add(args);
 
             bindableStringList.Parse(strings, CultureInfo.InvariantCulture);
@@ -1583,7 +1583,7 @@ namespace osu.Framework.Tests.Bindables
         {
             var boundCopy = bindableStringList.GetBoundCopy();
 
-            NotifyCollectionChangedEventArgs triggeredArgs = null;
+            CollectionChangedEvent<string> triggeredArgs = null;
             boundCopy.CollectionChanged += (_, args) => triggeredArgs = args;
 
             bindableStringList.Add("test");

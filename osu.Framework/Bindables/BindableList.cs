@@ -21,7 +21,7 @@ namespace osu.Framework.Bindables
         /// <summary>
         /// An event which is raised when this <see cref="BindableList{T}"/> changes.
         /// </summary>
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event Action<IBindableList<T>, CollectionChangedEvent<T>> CollectionChanged;
 
         /// <summary>
         /// An event which is raised when <see cref="Disabled"/>'s state has changed (or manually via <see cref="triggerDisabledChange(bool)"/>).
@@ -36,6 +36,9 @@ namespace osu.Framework.Bindables
         private WeakReference<BindableList<T>> weakReference => weakReferenceCache.IsValid ? weakReferenceCache.Value : weakReferenceCache.Value = new WeakReference<BindableList<T>>(this);
 
         private LockedWeakList<BindableList<T>> bindings;
+
+        private readonly List<T> singleItemCache1 = new List<T> { default };
+        private readonly List<T> singleItemCache2 = new List<T> { default };
 
         /// <summary>
         /// Creates a new <see cref="BindableList{T}"/>, optionally adding the items of the given collection.
@@ -76,7 +79,10 @@ namespace osu.Framework.Bindables
                     b.setIndex(index, item, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, lastItem, index));
+            singleItemCache1[0] = item;
+            singleItemCache2[0] = lastItem;
+
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Replace, singleItemCache1, singleItemCache2, index));
         }
 
         /// <summary>
@@ -101,7 +107,8 @@ namespace osu.Framework.Bindables
                     b.add(item, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, collection.Count - 1));
+            singleItemCache1[0] = item;
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Add, singleItemCache1, collection.Count - 1));
         }
 
         /// <summary>
@@ -134,7 +141,9 @@ namespace osu.Framework.Bindables
                     b.insert(index, item, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            singleItemCache1[0] = item;
+
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Add, singleItemCache1, index));
         }
 
         /// <summary>
@@ -164,7 +173,7 @@ namespace osu.Framework.Bindables
                     b.clear(appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, clearedItems, 0));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Remove, clearedItems, 0));
         }
 
         /// <summary>
@@ -212,7 +221,9 @@ namespace osu.Framework.Bindables
                 }
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, listItem, index));
+            singleItemCache1[0] = listItem;
+
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Remove, singleItemCache1, index));
 
             return true;
         }
@@ -250,7 +261,7 @@ namespace osu.Framework.Bindables
                 }
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItems, index));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Remove, removedItems, index));
         }
 
         /// <summary>
@@ -277,7 +288,9 @@ namespace osu.Framework.Bindables
                     b.removeAt(index, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+            singleItemCache1[0] = item;
+
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Remove, singleItemCache1, index));
         }
 
         /// <summary>
@@ -307,7 +320,7 @@ namespace osu.Framework.Bindables
                     b.removeAll(match, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Remove, removed, -1));
 
             return removed.Count;
         }
@@ -319,9 +332,9 @@ namespace osu.Framework.Bindables
         /// <param name="count">The count of items to be removed.</param>
         /// <param name="newItems">The items to replace the removed items with.</param>
         public void ReplaceRange(int index, int count, IEnumerable<T> newItems)
-            => replaceRange(index, count, newItems as IList ?? newItems.ToArray(), new HashSet<BindableList<T>>());
+            => replaceRange(index, count, newItems as List<T> ?? newItems.ToList(), new HashSet<BindableList<T>>());
 
-        private void replaceRange(int index, int count, IList newItems, HashSet<BindableList<T>> appliedInstances)
+        private void replaceRange(int index, int count, List<T> newItems, HashSet<BindableList<T>> appliedInstances)
         {
             if (checkAlreadyApplied(appliedInstances)) return;
 
@@ -330,7 +343,7 @@ namespace osu.Framework.Bindables
             var removedItems = collection.GetRange(index, count);
 
             collection.RemoveRange(index, count);
-            collection.InsertRange(index, newItems.Cast<T>());
+            collection.InsertRange(index, newItems);
 
             if (removedItems.Count == 0 && newItems.Count == 0)
                 return;
@@ -345,7 +358,7 @@ namespace osu.Framework.Bindables
                 }
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, removedItems, index));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Replace, newItems, removedItems, index));
         }
 
         /// <summary>
@@ -542,15 +555,15 @@ namespace osu.Framework.Bindables
         /// <param name="items">The collection whose items should be added to this collection.</param>
         /// <exception cref="InvalidOperationException">Thrown if this collection is <see cref="Disabled"/></exception>
         public void AddRange(IEnumerable<T> items)
-            => addRange(items as IList ?? items.ToArray(), new HashSet<BindableList<T>>());
+            => addRange(items as List<T> ?? items.ToList(), new HashSet<BindableList<T>>());
 
-        private void addRange(IList items, HashSet<BindableList<T>> appliedInstances)
+        private void addRange(List<T> items, HashSet<BindableList<T>> appliedInstances)
         {
             if (checkAlreadyApplied(appliedInstances)) return;
 
             ensureMutationAllowed();
 
-            collection.AddRange(items.Cast<T>());
+            collection.AddRange(items);
 
             if (bindings != null)
             {
@@ -558,7 +571,7 @@ namespace osu.Framework.Bindables
                     b.addRange(items, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, collection.Count - items.Count));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Add, items, collection.Count - items.Count));
         }
 
         /// <summary>
@@ -586,7 +599,7 @@ namespace osu.Framework.Bindables
                     b.move(oldIndex, newIndex, appliedInstances);
             }
 
-            notifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
+            notifyCollectionChanged(new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
         }
 
         void IBindable.BindTo(IBindable them)
@@ -641,11 +654,11 @@ namespace osu.Framework.Bindables
         /// </summary>
         /// <param name="onChange">The action to perform when this <see cref="BindableList{T}"/> changes.</param>
         /// <param name="runOnceImmediately">Whether the action provided in <paramref name="onChange"/> should be run once immediately.</param>
-        public void BindCollectionChanged(NotifyCollectionChangedEventHandler onChange, bool runOnceImmediately = false)
+        public void BindCollectionChanged(Action<IBindableList<T>, CollectionChangedEvent<T>> onChange, bool runOnceImmediately = false)
         {
             CollectionChanged += onChange;
             if (runOnceImmediately)
-                onChange(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, collection));
+                onChange(this, new CollectionChangedEvent<T>(NotifyCollectionChangedAction.Add, collection, -1));
         }
 
         private void addWeakReference(WeakReference<BindableList<T>> weakReference)
@@ -680,7 +693,7 @@ namespace osu.Framework.Bindables
 
         #endregion IEnumerable
 
-        private void notifyCollectionChanged(NotifyCollectionChangedEventArgs args) => CollectionChanged?.Invoke(this, args);
+        private void notifyCollectionChanged(CollectionChangedEvent<T> args) => CollectionChanged?.Invoke(this, args);
 
         private void ensureMutationAllowed()
         {

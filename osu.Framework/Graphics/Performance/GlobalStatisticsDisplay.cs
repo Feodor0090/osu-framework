@@ -8,7 +8,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Visualisation;
@@ -53,16 +52,16 @@ namespace osu.Framework.Graphics.Performance
         {
             base.LoadComplete();
 
-            GlobalStatistics.StatisticsChanged += (_, e) =>
+            GlobalStatistics.StatisticsChanged += e =>
             {
                 switch (e.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
-                        add(e.NewItems.AsNonNull().Cast<IGlobalStatistic>());
+                        add(e.NewItems);
                         break;
 
                     case NotifyCollectionChangedAction.Remove:
-                        remove(e.OldItems.AsNonNull().Cast<IGlobalStatistic>());
+                        remove(e.OldItems);
                         break;
                 }
             };

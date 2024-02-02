@@ -4,8 +4,6 @@
 #nullable disable
 
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Mixing;
@@ -52,19 +50,17 @@ namespace osu.Framework.Graphics.Visualisation.Audio
             activeMixers.BindCollectionChanged(onActiveMixerHandlesChanged, true);
         }
 
-        private void onActiveMixerHandlesChanged(object sender, NotifyCollectionChangedEventArgs e) => Schedule(() =>
+        private void onActiveMixerHandlesChanged(IBindableList<AudioMixer> sender, CollectionChangedEvent<AudioMixer> e) => Schedule(() =>
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    Debug.Assert(e.NewItems != null);
-                    foreach (var mixer in e.NewItems.OfType<AudioMixer>())
+                    foreach (var mixer in e.NewItems)
                         mixerFlow.Add(new MixerDisplay(mixer));
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    Debug.Assert(e.OldItems != null);
-                    mixerFlow.RemoveAll(m => e.OldItems.OfType<AudioMixer>().Contains(m.Mixer), true);
+                    mixerFlow.RemoveAll(m => e.OldItems.Contains(m.Mixer), true);
                     break;
             }
         });

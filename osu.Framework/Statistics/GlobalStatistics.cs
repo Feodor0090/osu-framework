@@ -4,7 +4,6 @@
 #nullable disable
 
 using System;
-using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Logging;
@@ -19,13 +18,13 @@ namespace osu.Framework.Statistics
         /// <summary>
         /// An event which is raised when the available statistics change.
         /// </summary>
-        internal static event NotifyCollectionChangedEventHandler StatisticsChanged;
+        internal static event Action<CollectionChangedEvent<IGlobalStatistic>> StatisticsChanged;
 
         private static readonly BindableList<IGlobalStatistic> statistics = new BindableList<IGlobalStatistic>();
 
         static GlobalStatistics()
         {
-            statistics.BindCollectionChanged((o, e) => StatisticsChanged?.Invoke(o, e));
+            statistics.BindCollectionChanged((_, e) => StatisticsChanged?.Invoke(e));
         }
 
         /// <summary>

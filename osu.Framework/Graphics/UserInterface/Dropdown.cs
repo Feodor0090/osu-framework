@@ -352,7 +352,7 @@ namespace osu.Framework.Graphics.UserInterface
             return false;
         }
 
-        private void collectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void collectionChanged(IBindableList<T> sender, CollectionChangedEvent<T> e)
         {
             switch (e.Action)
             {

@@ -342,18 +342,16 @@ namespace osu.Framework.Audio.Mixing.Bass
             BassMix.MixerRemoveChannel(channel.Handle);
         }
 
-        private void onEffectsChanged(object? sender, NotifyCollectionChangedEventArgs e) => EnqueueAction(() =>
+        private void onEffectsChanged(IBindableList<IEffectParameter> sender, CollectionChangedEvent<IEffectParameter> e) => EnqueueAction(() =>
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                 {
-                    Debug.Assert(e.NewItems != null);
-
                     // Work around BindableList sending initial event start with index -1.
                     int startIndex = Math.Max(0, e.NewStartingIndex);
 
-                    ActiveEffects.InsertRange(startIndex, e.NewItems.OfType<IEffectParameter>().Select(eff => new EffectWithHandle(eff)));
+                    ActiveEffects.InsertRange(startIndex, e.NewItems.Select(eff => new EffectWithHandle(eff)));
                     applyEffects(startIndex, ActiveEffects.Count - 1);
                     break;
                 }
@@ -369,8 +367,6 @@ namespace osu.Framework.Audio.Mixing.Bass
 
                 case NotifyCollectionChangedAction.Remove:
                 {
-                    Debug.Assert(e.OldItems != null);
-
                     for (int i = 0; i < e.OldItems.Count; i++)
                         removeEffect(ActiveEffects[e.OldStartingIndex + i]);
                     ActiveEffects.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
@@ -380,10 +376,8 @@ namespace osu.Framework.Audio.Mixing.Bass
 
                 case NotifyCollectionChangedAction.Replace:
                 {
-                    Debug.Assert(e.NewItems != null);
-
                     EffectWithHandle oldEffect = ActiveEffects[e.NewStartingIndex];
-                    EffectWithHandle newEffect = new EffectWithHandle((IEffectParameter)e.NewItems[0].AsNonNull()) { Handle = oldEffect.Handle };
+                    EffectWithHandle newEffect = new EffectWithHandle(e.NewItems[0].AsNonNull()) { Handle = oldEffect.Handle };
 
                     ActiveEffects[e.NewStartingIndex] = newEffect;
 
